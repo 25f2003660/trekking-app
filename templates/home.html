@@ -1,25 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>Welcome to Trekking</h2>
-    <p>Please log in to access your dashboard.</p>
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h2>Welcome to Trekking</h2>
+    </div>
 
     <form action="/login-submit" method="post">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
-        
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
-        
-        <label for="role">Role:</label>
-        <select id="role" name="role" required>
-            <option value="">Select Role</option>
-            <option value="Admin">Admin</option>
-            <option value="Staff">Trek Staff</option>
-            <option value="User">Trekker (User)</option>
-        </select><br><br>
-        
-        <input type="submit" value="Login">
-        <p>New user? <a href="/register">Sign up here</a></p>
+        <div style="max-width: 400px; margin: 0 auto; border: 1px solid #000; padding: 25px;">
+        <h3 style="text-align: center; margin-top: 0;">Please log in to access your dashboard.</h3>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required><br><br>
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br><br>
+            
+            <label for="role">Role:</label>
+            <select id="role" name="role" required>
+                <option value="">Select Role</option>
+                <option value="Admin">Admin</option>
+                <option value="Staff">Trek Staff</option>
+                <option value="User">Trekker (User)</option>
+            </select><br><br>
+            
+            <input type="submit" value="Login">
+            <p>New user? <a href="/register">Sign up here</a></p>
+        </div>
     </form>
 {% endblock %}
