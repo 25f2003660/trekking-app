@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>User Dashboard - {{ username | default('Trekker') }}</h2>
+    
+    <h3>Available Open Treks</h3>
+    <table border="1" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <th>Trek Name</th>
+            <th>Location</th>
+            <th>Date</th>
+            <th>Action</th>
+        </tr>
+        <tr>
+            <td>Everest Trek</td>
+            <td>Nepal</td>
+            <td>17-06-2026</td>
+            <td><button onclick="alert('Spot booked!')">Book Spot</button></td>
+        </tr>
+        <tr>
+            <td>Kilimanjaro Trek</td>
+            <td>Tanzania</td>
+            <td>20-06-2026</td>
+            <td><button onclick="alert('Spot booked!')">Book Spot</button></td>
+        </tr>
+    </table>
+    
+    <h3>Your Booking History</h3>
+    <table border="1" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <th>Booking ID</th>
+            <th>Trek Name</th>
+            <th>Booking Status</th>
+        </tr>
+    </table>
+{% endblock %}

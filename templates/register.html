@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Register New Account</h2>
+    <form action="/register-submit" method="post">
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" required><br><br>
+        
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br><br>
+        
+        <label for="role">Register as:</label><br>
+        <select id="role" name="role" required>
+            <option value="User">Trekker (User)</option>
+            <option value="Staff">Trek Staff</option>
+        </select><br><br>
+        
+        <input type="submit" value="Register">
+    </form>
+    <p><a href="/">Back to Login</a></p>
+{% endblock %}

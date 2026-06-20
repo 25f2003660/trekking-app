@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Staff Dashboard - {{ username | default('Staff') }}</h2>
+    
+    <h3>Update Trek Status</h3>
+    <form action="/update-trek-status" method="post">
+        <label for="trek_id">Trek ID:</label>
+        <input type="text" id="trek_id" name="trek_id" value="TREK001"><br><br>
+        
+        <label for="new_status">New Status:</label>
+        <select id="new_status" name="new_status">
+            <option value="Open">Open</option>
+            <option value="Closed">Closed</option>
+            <option value="Completed">Completed</option>
+        </select><br><br>
+        
+        <input type="submit" value="Update Status">
+    </form>
+{% endblock %}
