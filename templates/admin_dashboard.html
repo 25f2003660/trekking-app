@@ -132,9 +132,14 @@
                         <input type="submit" value="Approve">
                     </form>
                     {% endif %}
-                    {% if profile.status != 'Blacklisted' %}
+                    {% if profile.status == 'Approved' %}
                     <form action="/admin/staff/blacklist/{{ profile.user_id }}" method="post" style="display:inline;" onsubmit="return confirm('Blacklist this staff member?');">
                         <input type="submit" value="Blacklist">
+                    </form>
+                    {% endif %}
+                    {% if profile.status == 'Blacklisted' %}
+                    <form action="/admin/staff/unblacklist/{{ profile.user_id }}" method="post" style="display:inline;" onsubmit="return confirm('Unblacklist this staff member?');">
+                        <input type="submit" value="Remove Blacklist">
                     </form>
                     {% endif %}
                 </td>

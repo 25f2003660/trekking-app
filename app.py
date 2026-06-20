@@ -242,6 +242,9 @@ def admin_edit_trek(trek_id):
     if slots is not None:
         trek.slots = slots
     trek.status = request.form.get('status', trek.status)
+    if trek.status == 'Closed' or trek.status == 'Completed':
+        trek.slots = 0
+    
     trek.start_date = request.form.get('start_date', trek.start_date)
     trek.end_date = request.form.get('end_date', trek.end_date)
 
@@ -282,6 +285,16 @@ def admin_blacklist_staff(user_id):
     user = User.query.get(user_id)
     if user:
         user.is_blacklisted = True
+    db.session.commit()
+    return redirect('/admin')
+
+@app.route('/admin/staff/unblacklist/<int:user_id>', methods=['POST'])
+def admin_unblacklist_staff(user_id):
+    profile = StaffProfile.query.filter_by(user_id=user_id).first_or_404()
+    profile.status = 'Approved'
+    user = User.query.get(user_id)
+    if user:
+        user.is_blacklisted = False
     db.session.commit()
     return redirect('/admin')
 
