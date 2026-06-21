@@ -1,4 +1,1 @@
-# trekking-app
-
-I am building a trekking application to help the trekker and guides.
-
+TrekClub is  a Trekking Management Application that allows Admin, Trek Staff, and Users (Trekkers) to interact with the system based on their roles.

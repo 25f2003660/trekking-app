@@ -13,7 +13,7 @@ with app.app_context():
     staff_user2 = User(username="priya", role="Staff")
     staff_user2.set_password("staffpass")
 
-    trekker1 = User(username="ravi", role="User")
+    trekker1 = User(username="sid", role="User")
     trekker1.set_password("userpass")
 
     trekker2 = User(username="meera", role="User")

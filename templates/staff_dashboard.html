@@ -2,19 +2,73 @@
 
 {% block content %}
     <h2>Staff Dashboard - {{ username | default('Staff') }}</h2>
-    
-    <h3>Update Trek Status</h3>
-    <form action="/update-trek-status" method="post">
-        <label for="trek_id">Trek ID:</label>
-        <input type="text" id="trek_id" name="trek_id" value="TREK001"><br><br>
-        
-        <label for="new_status">New Status:</label>
-        <select id="new_status" name="new_status">
-            <option value="Open">Open</option>
-            <option value="Closed">Closed</option>
-            <option value="Completed">Completed</option>
-        </select><br><br>
-        
-        <input type="submit" value="Update Status">
-    </form>
+
+    <section style="margin-bottom: 25px;">
+        <h3>Your Assigned Treks</h3>
+        <table border="1" cellpadding="8" style="width: 100%;">
+            <tr>
+                <th>Trek ID</th>
+                <th>Trek Name</th>
+                <th>Location</th>
+                <th>Difficulty</th>
+                <th>Slots</th>
+                <th>Status</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Update</th>
+            </tr>
+            {% for trek in assigned_treks %}
+            <tr>
+                <td>{{ trek.id }}</td>
+                <td>{{ trek.name }}</td>
+                <td>{{ trek.location }}</td>
+                <td>{{ trek.difficulty }}</td>
+                <td>{{ trek.slots }}</td>
+                <td>{{ trek.status }}</td>
+                <td>{{ trek.start_date }}</td>
+                <td>{{ trek.end_date }}</td>
+                <td>
+                    <form action="/staff/trek/update/{{ trek.id }}" method="post">
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <label for="slots_{{ trek.id }}">Slots:</label>
+                        <input type="number" id="slots_{{ trek.id }}" name="slots" value="{{ trek.slots }}" min="0" style="width: 60px;">
+
+                        <label for="status_{{ trek.id }}">Status:</label>
+                        <select id="status_{{ trek.id }}" name="new_status">
+                            <option value="Open" {% if trek.status == 'Open' %}selected{% endif %}>Open</option>
+                            <option value="Closed" {% if trek.status == 'Closed' %}selected{% endif %}>Closed</option>
+                            <option value="Completed" {% if trek.status == 'Completed' %}selected{% endif %}>Completed</option>
+                        </select>
+
+                        <input type="submit" value="Update Status">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </section>
+
+    <section>
+        <h3>Users Registered For Your Treks</h3>
+        <table border="1" cellpadding="8" style="width: 100%;">
+            <tr>
+                <th>Booking ID</th>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>Trek Name</th>
+                <th>Booking Date</th>
+                <th>Status</th>
+            </tr>
+            {% for booking in registered_bookings %}
+            <tr>
+                <td>{{ booking.id }}</td>
+                <td>{{ booking.user_id }}</td>
+                <td>{{ booking.user.username }}</td>
+                <td>{{ booking.trek.name }}</td>
+                <td>{{ booking.booking_date }}</td>
+                <td>{{ booking.status }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </section>
 {% endblock %}

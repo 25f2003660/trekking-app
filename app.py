@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
 import os
 
 app = Flask(__name__)
@@ -85,7 +84,6 @@ def home():
 @app.route('/register')
 def register():
     return render_template('register.html')
-
 
 @app.route('/register-submit', methods=['GET', 'POST'])
 def register_submit():
@@ -314,11 +312,45 @@ def admin_unblacklist_user(user_id):
     db.session.commit()
     return redirect('/admin')
 
+#staff
 
 @app.route('/staff/dashboard/<int:user_id>')
 def staff_dashboard(user_id):
     user = User.query.get_or_404(user_id)
-    return render_template('staff_dashboard.html', user=user)
+    assigned_treks = Trek.query.filter_by(assigned_staff_id=user_id).all()
+
+
+    trek_ids = [t.id for t in assigned_treks]
+    registered_bookings = []
+    if trek_ids:
+        registered_bookings = Booking.query.filter(Booking.trek_id.in_(trek_ids)).all()
+
+    return render_template(
+        'staff_dashboard.html',
+        user=user,
+        username=user.username,
+        assigned_treks=assigned_treks,
+        registered_bookings=registered_bookings,
+    )
+
+
+@app.route('/staff/trek/update/<int:trek_id>', methods=['POST'])
+def staff_update_trek(trek_id):
+    trek = Trek.query.get_or_404(trek_id)
+    user_id = request.form.get('user_id', type=int)
+
+    slots = request.form.get('slots', type=int)
+    if slots is not None:
+        trek.slots = slots
+
+    new_status = request.form.get('new_status')
+    if new_status:
+        trek.status = new_status
+    if trek.status == 'Closed' or trek.status == 'Completed':
+        trek.slots = 0
+
+    db.session.commit()
+    return redirect(f'/staff/dashboard/{user_id}')
 
 
 @app.route('/user/dashboard/<int:user_id>')
