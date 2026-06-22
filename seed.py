@@ -7,16 +7,16 @@ with app.app_context():
     admin = User(username="admin", role="Admin")
     admin.set_password("admin")
 
-    staff_user = User(username="alex", role="Staff")
+    staff_user = User(username="staff1", role="Staff")
     staff_user.set_password("staffpass")
 
-    staff_user2 = User(username="priya", role="Staff")
+    staff_user2 = User(username="staff2", role="Staff")
     staff_user2.set_password("staffpass")
 
-    trekker1 = User(username="sid", role="User")
+    trekker1 = User(username="user1", role="User")
     trekker1.set_password("userpass")
 
-    trekker2 = User(username="meera", role="User")
+    trekker2 = User(username="user2", role="User")
     trekker2.set_password("userpass")
 
     db.session.add_all([admin, staff_user, staff_user2, trekker1, trekker2])

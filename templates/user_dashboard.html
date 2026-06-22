@@ -2,35 +2,81 @@
 
 {% block content %}
     <h2>User Dashboard - {{ username | default('Trekker') }}</h2>
-    
+
+    <section style="margin-bottom: 25px;">
+        <h3>Search / Filter Treks</h3>
+        <form action="/user/dashboard/{{ user.id }}" method="get">
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty" name="difficulty">
+                <option value="" {% if not difficulty %}selected{% endif %}>All</option>
+                <option value="Easy" {% if difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+                <option value="Moderate" {% if difficulty == 'Moderate' %}selected{% endif %}>Moderate</option>
+                <option value="Hard" {% if difficulty == 'Hard' %}selected{% endif %}>Hard</option>
+            </select>
+
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" value="{{ location }}">
+
+            <input type="submit" value="Filter">
+            {% if difficulty or location %}<a href="/user/dashboard/{{ user.id }}">Clear</a>{% endif %}
+        </form>
+    </section>
+
     <h3>Available Open Treks</h3>
     <table border="1" style="width: 100%; border-collapse: collapse;">
         <tr>
             <th>Trek Name</th>
             <th>Location</th>
-            <th>Date</th>
+            <th>Difficulty</th>
+            <th>Duration</th>
+            <th>Slots</th>
+            <th>Start Date</th>
+            <th>End Date</th>
             <th>Action</th>
         </tr>
+        {% for trek in open_treks %}
         <tr>
-            <td>Everest Trek</td>
-            <td>Nepal</td>
-            <td>17-06-2026</td>
-            <td><button onclick="alert('Spot booked!')">Book Spot</button></td>
+            <td>{{ trek.name }}</td>
+            <td>{{ trek.location }}</td>
+            <td>{{ trek.difficulty }}</td>
+            <td>{{ trek.duration }} day(s)</td>
+            <td>{{ trek.slots }}</td>
+            <td>{{ trek.start_date }}</td>
+            <td>{{ trek.end_date }}</td>
+            <td>
+                <form action="/user/trek/book/{{ trek.id }}" method="post">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <input type="submit" value="Book Spot" {% if trek.slots <= 0 %}disabled{% endif %}>
+                </form>
+            </td>
         </tr>
-        <tr>
-            <td>Kilimanjaro Trek</td>
-            <td>Tanzania</td>
-            <td>20-06-2026</td>
-            <td><button onclick="alert('Spot booked!')">Book Spot</button></td>
-        </tr>
+        {% endfor %}
     </table>
-    
+
     <h3>Your Booking History</h3>
     <table border="1" style="width: 100%; border-collapse: collapse;">
         <tr>
             <th>Booking ID</th>
             <th>Trek Name</th>
+            <th>Booking Date</th>
             <th>Booking Status</th>
+            <th>Action</th>
         </tr>
+        {% for booking in bookings %}
+        <tr>
+            <td>{{ booking.id }}</td>
+            <td>{{ booking.trek.name }}</td>
+            <td>{{ booking.booking_date }}</td>
+            <td>{{ booking.status }}</td>
+            <td>
+                {% if booking.status == 'Booked' %}
+                <form action="/user/booking/cancel/{{ booking.id }}" method="post">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <input type="submit" value="Cancel">
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
     </table>
 {% endblock %}

@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///trekking.db'
+app.config['SECRET_KEY'] = 'siddhartham'
 db = SQLAlchemy(app)
 
 
@@ -74,7 +76,7 @@ def init_database():
             db.session.add(seeded_admin)
             db.session.commit()
 
-
+#routes
 
 @app.route('/')
 def home():
@@ -130,9 +132,9 @@ def login_submit():
 
     if user.is_blacklisted:
         return redirect('/')
-
     if selected_role == 'Admin':
         return redirect('/admin')
+        
     elif selected_role == 'Staff':
         profile = StaffProfile.query.filter_by(user_id=user.id).first()
         if not profile or profile.status != 'Approved':
@@ -140,7 +142,7 @@ def login_submit():
         return redirect(f'/staff/dashboard/{user.id}')
     elif selected_role == 'User':
         return redirect(f'/user/dashboard/{user.id}')
-
+    
     return redirect('/')
 
 def _safe_int(value):
@@ -240,7 +242,7 @@ def admin_edit_trek(trek_id):
     if slots is not None:
         trek.slots = slots
     trek.status = request.form.get('status', trek.status)
-    if trek.status == 'Closed' or trek.status == 'Completed':
+    if trek.status == 'Closed' or trek.status == 'Completed' or trek.status == 'Ongoing':
         trek.slots = 0
     
     trek.start_date = request.form.get('start_date', trek.start_date)
@@ -346,19 +348,74 @@ def staff_update_trek(trek_id):
     new_status = request.form.get('new_status')
     if new_status:
         trek.status = new_status
-    if trek.status == 'Closed' or trek.status == 'Completed':
+    if trek.status == 'Closed' or trek.status == 'Completed' or trek.status == 'Ongoing':
         trek.slots = 0
 
     db.session.commit()
     return redirect(f'/staff/dashboard/{user_id}')
 
 
+#user
+
 @app.route('/user/dashboard/<int:user_id>')
 def user_dashboard(user_id):
     user = User.query.get_or_404(user_id)
-    open_treks = Trek.query.filter_by(status='Open').all()
+
+    difficulty = request.args.get('difficulty', '').strip()
+    location = request.args.get('location', '').strip()
+
+    open_treks_query = Trek.query.filter_by(status='Open')
+    if difficulty:
+        open_treks_query = open_treks_query.filter(Trek.difficulty == difficulty)
+    if location:
+        open_treks_query = open_treks_query.filter(Trek.location.ilike(f"%{location}%"))
+
+    open_treks = open_treks_query.all()
     bookings = Booking.query.filter_by(user_id=user_id).all()
-    return render_template('user_dashboard.html', user=user, open_treks=open_treks, bookings=bookings)
+
+    return render_template(
+        'user_dashboard.html',
+        user=user,
+        username=user.username,
+        open_treks=open_treks,
+        bookings=bookings,
+        difficulty=difficulty,
+        location=location,
+    )
+
+
+@app.route('/user/trek/book/<int:trek_id>', methods=['POST'])
+def user_book_trek(trek_id):
+    user_id = request.form.get('user_id', type=int)
+    trek = Trek.query.get_or_404(trek_id)
+
+    if trek.status == 'Open' and trek.slots > 0:
+        booking = Booking(
+            user_id=user_id,
+            trek_id=trek_id,
+            booking_date=datetime.utcnow().strftime('%d-%m-%Y'),
+            status='Booked',
+        )
+        trek.slots -= 1
+        db.session.add(booking)
+        db.session.commit()
+
+    return redirect(f'/user/dashboard/{user_id}')
+
+
+@app.route('/user/booking/cancel/<int:booking_id>', methods=['POST'])
+def user_cancel_booking(booking_id):
+    user_id = request.form.get('user_id', type=int)
+    booking = Booking.query.get_or_404(booking_id)
+
+    if booking.status == 'Booked':
+        booking.status = 'Cancelled'
+        trek = Trek.query.get(booking.trek_id)
+        if trek:
+            trek.slots += 1
+        db.session.commit()
+
+    return redirect(f'/user/dashboard/{user_id}')
 
 
 if __name__ == '__main__':
