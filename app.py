@@ -16,6 +16,8 @@ class User(db.Model):
     username = db.Column(db.String(12), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(12), nullable=False)
+    email = db.Column(db.String(120), default='')
+    phone = db.Column(db.String(20), default='')
 
     is_blacklisted = db.Column(db.Boolean, default=False)
 
@@ -59,6 +61,7 @@ class Booking(db.Model):
     trek_id = db.Column(db.Integer, db.ForeignKey('trek.id'), nullable=False)
     booking_date = db.Column(db.String(20))
     status = db.Column(db.String(20), default='Booked')
+    payment_id = db.Column(db.String(100), default='')
 
     user = db.relationship('User')
     trek = db.relationship('Trek')
@@ -69,6 +72,7 @@ def init_database():
 
     with app.app_context():
         db.create_all()
+
         admin_user = User.query.filter_by(role='Admin', username='admin').first()
         if not admin_user:
             seeded_admin = User(username='admin', password='', role='Admin')
@@ -80,7 +84,7 @@ def init_database():
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('home.html', hide_home=True)
 
 
 @app.route('/register')
@@ -197,6 +201,7 @@ def admin_dashboard():
         active_bookings=active_bookings,
         approved_staff=approved_staff,
         search=search,
+        show_logout=True,
     )
 
 
@@ -333,6 +338,7 @@ def staff_dashboard(user_id):
         username=user.username,
         assigned_treks=assigned_treks,
         registered_bookings=registered_bookings,
+        show_logout=True,
     )
 
 
@@ -381,6 +387,7 @@ def user_dashboard(user_id):
         bookings=bookings,
         difficulty=difficulty,
         location=location,
+        show_logout=True,
     )
 
 
@@ -390,17 +397,61 @@ def user_book_trek(trek_id):
     trek = Trek.query.get_or_404(trek_id)
 
     if trek.status == 'Open' and trek.slots > 0:
+        return render_template('payment.html', trek=trek, user_id=user_id, show_logout=True)
+
+    return redirect(f'/user/dashboard/{user_id}')
+
+
+@app.route('/user/payment/confirm', methods=['POST'])
+def user_payment_confirm():
+    user_id = request.form.get('user_id', type=int)
+    trek_id = request.form.get('trek_id', type=int)
+    payment_id = request.form.get('payment_id', '').strip()
+
+    if not payment_id:
+        trek = Trek.query.get_or_404(trek_id)
+        return render_template('payment.html', trek=trek, user_id=user_id, show_logout=True, error='Payment ID is required.')
+
+    trek = Trek.query.get_or_404(trek_id)
+    if trek.status == 'Open' and trek.slots > 0:
         booking = Booking(
             user_id=user_id,
             trek_id=trek_id,
             booking_date=datetime.utcnow().strftime('%d-%m-%Y'),
             status='Booked',
+            payment_id=payment_id,
         )
         trek.slots -= 1
         db.session.add(booking)
         db.session.commit()
 
     return redirect(f'/user/dashboard/{user_id}')
+
+
+@app.route('/user/profile/<int:user_id>', methods=['GET', 'POST'])
+def user_profile(user_id):
+    user = User.query.get_or_404(user_id)
+
+    if request.method == 'POST':
+        new_username = request.form.get('username', '').strip()
+        new_password = request.form.get('password', '').strip()
+        new_email = request.form.get('email', '').strip()
+        new_phone = request.form.get('phone', '').strip()
+
+        if new_username and new_username != user.username:
+            existing = User.query.filter_by(username=new_username).first()
+            if not existing:
+                user.username = new_username
+
+        if new_password:
+            user.set_password(new_password)
+
+        user.email = new_email
+        user.phone = new_phone
+        db.session.commit()
+        return redirect(f'/user/dashboard/{user_id}')
+
+    return render_template('user_profile.html', user=user, show_logout=True)
 
 
 @app.route('/user/booking/cancel/<int:booking_id>', methods=['POST'])

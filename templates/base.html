@@ -10,7 +10,11 @@
         <h3 style="text-align: center; margin-top: 0;">Trekking Management Portal</h3>
     </header>
     <nav>
-        <a href="/">Home</a>
+        {% if show_logout %}
+            <a href="/">Logout</a>
+        {% elif not hide_home %}
+            <a href="/">Home</a>
+        {% endif %}
     </nav>
     <hr>
 

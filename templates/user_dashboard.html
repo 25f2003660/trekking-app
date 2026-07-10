@@ -2,6 +2,7 @@
 
 {% block content %}
     <h2>User Dashboard - {{ username | default('Trekker') }}</h2>
+    <p><a href="/user/profile/{{ user.id }}">Update Profile</a></p>
 
     <section style="margin-bottom: 25px;">
         <h3>Search / Filter Treks</h3>

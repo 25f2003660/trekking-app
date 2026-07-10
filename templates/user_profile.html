@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Update Profile - {{ user.username }}</h2>
+
+    <div style="max-width: 500px; margin: 0 auto; border: 1px solid #000; padding: 25px;">
+        <form action="/user/profile/{{ user.id }}" method="post">
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username" value="{{ user.username }}"><br><br>
+
+            <label for="password">New Password (leave blank to keep current):</label><br>
+            <input type="password" id="password" name="password"><br><br>
+
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" value="{{ user.email or '' }}"><br><br>
+
+            <label for="phone">Phone:</label><br>
+            <input type="text" id="phone" name="phone" value="{{ user.phone or '' }}"><br><br>
+
+            <input type="submit" value="Update Profile">
+        </form>
+
+        <p><a href="/user/dashboard/{{ user.id }}">Back to Dashboard</a></p>
+    </div>
+{% endblock %}
