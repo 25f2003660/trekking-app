@@ -22,7 +22,6 @@ def init_database():
             db.session.add(seeded_admin)
             db.session.commit()
 
-# Import routes at the end to avoid circular dependency
 from routes import *
 
 if __name__ == '__main__':
