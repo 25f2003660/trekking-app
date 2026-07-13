@@ -8,6 +8,9 @@
     <form action="/login-submit" method="post">
         <div style="max-width: 400px; margin: 0 auto; border: 1px solid #000; padding: 25px;">
         <h3 style="text-align: center; margin-top: 0;">Please log in to access your dashboard.</h3>
+        {% if error %}
+            <p style="color: red; text-align: center; font-weight: bold;">{{ error }}</p>
+        {% endif %}
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required><br><br>
             

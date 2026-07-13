@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Staff Approval Pending</h2>
+
+<div style="max-width: 500px; margin: 0 auto; border: 1px solid #000; padding: 25px; text-align: center;">
+    <p>Hello <strong>{{ username }}</strong>,</p>
+    <p>Your staff registration is currently <strong>pending approval</strong> from the admin.</p>
+    <p>Please wait until an admin reviews and approves your account before logging in.</p>
+    <br>
+    <a href="/">Back to Home</a>
+</div>
+{% endblock %}

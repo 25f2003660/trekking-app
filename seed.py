@@ -1,4 +1,5 @@
-from app import app, db, User, StaffProfile, Trek, Booking
+from app import app
+from models import db, User, StaffProfile, Trek, Booking
 
 with app.app_context():
     db.drop_all()
